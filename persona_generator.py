@@ -68,3 +68,19 @@ def generate_persona_message(segment_name: str, segment_stats: dict) -> str:
     )
 
     return response.choices[0].message.content.strip()
+
+
+def generate_brand_content(user_prompt: str, system_prompt: str) -> str:
+    """
+    Reusable Groq text generator for new dashboard features.
+    """
+    client = _get_groq_client()
+    response = client.chat.completions.create(
+        model="llama-3.1-8b-instant",
+        temperature=0.7,
+        messages=[
+            {"role": "system", "content": system_prompt},
+            {"role": "user", "content": user_prompt},
+        ],
+    )
+    return response.choices[0].message.content.strip()
