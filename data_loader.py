@@ -46,3 +46,33 @@ def load_and_clean_data(file) -> pd.DataFrame:
     """
     df = pd.read_csv(file)
     return clean_customer_data(df)
+
+
+def sample_dataframe() -> pd.DataFrame:
+    segment_profiles = [
+        ("Routine Loyalists", 20, 28, 30000, 50000, 75, 95, 10, 16, 13),
+        ("Glow Starters", 28, 40, 60000, 85000, 45, 65, 6, 11, 12),
+        ("Premium Skin Investors", 25, 35, 50000, 70000, 60, 80, 8, 13, 13),
+        ("Community Trend Setters", 35, 50, 85000, 110000, 25, 45, 3, 8, 12),
+    ]
+
+    rows = []
+    customer_id = 1001
+    for _, age_min, age_max, income_min, income_max, spend_min, spend_max, freq_min, freq_max, count in segment_profiles:
+        for idx in range(count):
+            age_span = age_max - age_min
+            income_span = income_max - income_min
+            spend_span = spend_max - spend_min
+            freq_span = freq_max - freq_min
+            rows.append(
+                {
+                    "customer_id": customer_id,
+                    "age": age_min + ((idx * 2 + customer_id) % (age_span + 1)),
+                    "annual_income": income_min + ((idx * 3300 + customer_id * 97) % (income_span + 1)),
+                    "spending_score": spend_min + ((idx * 3 + customer_id) % (spend_span + 1)),
+                    "purchase_frequency": freq_min + ((idx + customer_id) % (freq_span + 1)),
+                }
+            )
+            customer_id += 1
+
+    return pd.DataFrame(rows)

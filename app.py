@@ -4,7 +4,7 @@ import pandas as pd
 import plotly.express as px
 import streamlit as st
 
-from data_loader import clean_customer_data, load_and_clean_data
+from data_loader import clean_customer_data, load_and_clean_data, sample_dataframe
 from persona_generator import generate_brand_content, generate_persona_message
 from segmentation import assign_segments, segment_summary
 
@@ -283,18 +283,6 @@ def render_page_heading(title: str, subtitle: str) -> None:
     st.markdown(f'<div class="page-subtitle">{subtitle}</div>', unsafe_allow_html=True)
 
 
-def sample_dataframe() -> pd.DataFrame:
-    return pd.DataFrame(
-        {
-            "customer_id": [1001, 1002, 1003, 1004, 1005, 1006, 1007, 1008],
-            "age": [22, 28, 35, 41, 24, 30, 38, 45],
-            "annual_income": [35000, 48000, 76000, 92000, 40000, 62000, 85000, 99000],
-            "spending_score": [80, 65, 55, 35, 90, 70, 45, 30],
-            "purchase_frequency": [12, 9, 7, 4, 14, 10, 5, 3],
-        }
-    )
-
-
 if "page" not in st.session_state:
     st.session_state["page"] = "Home"
 
@@ -431,8 +419,32 @@ elif current_page == "Customer Segments":
         color="segment_name",
         size="purchase_frequency",
         hover_data=["customer_id", "age"],
-        title="Income vs Spending by Segment",
+        title="Annual Income vs Spending Score by Segment",
         template="plotly_white",
+    )
+    scatter.update_traces(marker={"opacity": 0.8})
+    scatter.update_layout(
+        paper_bgcolor="#FAF7F2",
+        plot_bgcolor="#FFFFFF",
+        height=420,
+        margin=dict(l=30, r=30, t=60, b=30),
+        showlegend=True,
+        title=dict(text="Annual Income vs Spending Score by Segment", font=dict(size=16, color="#3D2B1F")),
+        legend=dict(
+            title=dict(text="Segment", font=dict(color="#2C2C2C")),
+            font=dict(color="#2C2C2C"),
+        ),
+    )
+    scatter.update_xaxes(
+        title=dict(text="Annual Income", font=dict(color="#3D2B1F", size=13)),
+        showgrid=False,
+        tickfont=dict(color="#2C2C2C"),
+    )
+    scatter.update_yaxes(
+        title=dict(text="Spending Score", font=dict(color="#3D2B1F", size=13)),
+        showgrid=True,
+        gridcolor="#E8DDD5",
+        tickfont=dict(color="#2C2C2C"),
     )
     st.plotly_chart(scatter, use_container_width=True, key="segments_scatter")
     st.markdown("</div>", unsafe_allow_html=True)
