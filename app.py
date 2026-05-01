@@ -259,6 +259,18 @@ button[data-testid="stBaseButton-secondary"] {
   border: 1px solid #E8DDD5;
   border-radius: 10px;
 }
+
+header[data-testid="stHeader"] {
+  background-color: #FAF7F2 !important;
+}
+
+[data-testid="stHeader"] {
+  background-color: #FAF7F2 !important;
+}
+
+.stApp > header {
+  background-color: #FAF7F2 !important;
+}
 </style>
 """,
     unsafe_allow_html=True,
@@ -485,10 +497,8 @@ elif current_page == "AI Persona":
                 segment_row = summary_df.loc[summary_df["segment_name"] == selected_segment].iloc[0]
                 segment_stats = segment_row.to_dict()
                 persona_text = generate_persona_message(segment_name=selected_segment, segment_stats=segment_stats)
-                st.markdown(
-                    f'<div class="card">{persona_text.replace(chr(10), "<br>")}</div>',
-                    unsafe_allow_html=True,
-                )
+                response_text = persona_text
+                st.markdown(response_text, unsafe_allow_html=True)
             except Exception as exc:
                 st.error(f"Persona generation error: {exc}")
     render_footer()
@@ -577,16 +587,13 @@ elif current_page == "Trend Triggers":
         row = summary_df.loc[summary_df["segment_name"] == trigger_segment].iloc[0]
         trigger_score = round(float((row["avg_spending"] * 0.5) + (row["avg_purchase_frequency"] * 4.2)), 1)
         suggested_window = "Evening (6 PM - 9 PM)" if row["avg_age"] < 35 else "Morning (7 AM - 10 AM)"
-        st.markdown(
-            f"""
-<div class="card">
-<strong>Context trigger score:</strong> {trigger_score}<br><br>
-<strong>Best send window:</strong> {suggested_window}<br><br>
-<strong>Suggested trigger:</strong> Deliver a skin-first reset message right after high-stress dayparts, then reinforce with short community proof.
-</div>
-""",
-            unsafe_allow_html=True,
+        response_text = (
+            f"**Context trigger score:** {trigger_score}\n\n"
+            f"**Best send window:** {suggested_window}\n\n"
+            "**Suggested trigger:** Deliver a skin-first reset message right after high-stress dayparts, "
+            "then reinforce with short community proof."
         )
+        st.markdown(response_text, unsafe_allow_html=True)
     render_footer()
 
 elif current_page == "Influencer Match Engine":
@@ -632,21 +639,17 @@ Use Glossier tone: honest, skin-first, community-first, never corporate.
                 if len(profiles) != 3:
                     raise ValueError("Groq response did not return exactly 3 influencer profiles.")
                 for idx, profile in enumerate(profiles, start=1):
-                    st.markdown(
-                        f"""
-<div class="card">
-<strong>Profile {idx}: {profile["profile_title"]}</strong><br><br>
-Example creator: {profile["example_creator_name"]}<br>
-Follower range: {profile["follower_range"]}<br>
-Content style: {profile["content_style"]}<br>
-Platform: {profile["platform"]}<br>
-Personality type: {profile["personality_type"]}<br><br>
-Why this fits: {profile["why_fit"]}<br><br>
-Best content for Glossier: {profile["content_for_glossier"]}
-</div>
-""",
-                        unsafe_allow_html=True,
+                    response_text = (
+                        f"**Profile {idx}: {profile['profile_title']}**\n\n"
+                        f"Example creator: {profile['example_creator_name']}\n\n"
+                        f"Follower range: {profile['follower_range']}\n\n"
+                        f"Content style: {profile['content_style']}\n\n"
+                        f"Platform: {profile['platform']}\n\n"
+                        f"Personality type: {profile['personality_type']}\n\n"
+                        f"Why this fits: {profile['why_fit']}\n\n"
+                        f"Best content for Glossier: {profile['content_for_glossier']}"
                     )
+                    st.markdown(response_text, unsafe_allow_html=True)
             except Exception as exc:
                 st.error(f"Influencer engine error: {exc}")
     render_footer()
@@ -700,21 +703,17 @@ Tone must be human, honest, skin-first, community-driven, never corporate.
                     system_prompt="You are a Glossier brand partnerships strategist. Output clean JSON only.",
                 )
                 collab_data = json.loads(collab_raw)
-                products_text = "<br>".join([f"- {item}" for item in collab_data["glossier_products"]])
-                st.markdown(
-                    f"""
-<div class="card">
-<strong>{collab_data["kit_name"]}</strong><br><br>
-Theme: {collab_data["theme"]}<br><br>
-Glossier products:<br>{products_text}<br><br>
-Partner item suggestion: {collab_data["partner_item_suggestion"]}<br><br>
-Handwritten note copy:<br>{collab_data["handwritten_note_copy"].replace(chr(10), "<br>")}<br><br>
-Campaign hashtag: {collab_data["campaign_hashtag"]}<br><br>
-Unboxing experience:<br>{collab_data["unboxing_experience"].replace(chr(10), "<br>")}
-</div>
-""",
-                    unsafe_allow_html=True,
+                products_text = "\n".join([f"- {item}" for item in collab_data["glossier_products"]])
+                response_text = (
+                    f"**{collab_data['kit_name']}**\n\n"
+                    f"Theme: {collab_data['theme']}\n\n"
+                    f"Glossier products:\n{products_text}\n\n"
+                    f"Partner item suggestion: {collab_data['partner_item_suggestion']}\n\n"
+                    f"Handwritten note copy:\n{collab_data['handwritten_note_copy']}\n\n"
+                    f"Campaign hashtag: {collab_data['campaign_hashtag']}\n\n"
+                    f"Unboxing experience:\n{collab_data['unboxing_experience']}"
                 )
+                st.markdown(response_text, unsafe_allow_html=True)
             except Exception as exc:
                 st.error(f"Collab kit builder error: {exc}")
     render_footer()
@@ -758,12 +757,12 @@ Voice: honest, human, skin-first, community-first, never corporate.
                     system_prompt="You write creator outreach for Glossier. Output clean JSON only.",
                 )
                 outreach_data = json.loads(outreach_raw)
-                st.markdown('<div class="card">', unsafe_allow_html=True)
-                st.text_area("Personalized DM", value=outreach_data["dm_message"], height=140)
-                full_email = f"Subject: {outreach_data['email_subject']}\n\n{outreach_data['email_body']}"
-                st.text_area("Formal Email", value=full_email, height=220)
-                st.text_area("Follow-up Message", value=outreach_data["follow_up_message"], height=120)
-                st.markdown("</div>", unsafe_allow_html=True)
+                response_text = (
+                    f"**Personalized DM**\n\n{outreach_data['dm_message']}\n\n"
+                    f"**Formal Email**\n\nSubject: {outreach_data['email_subject']}\n\n{outreach_data['email_body']}\n\n"
+                    f"**Follow-up Message**\n\n{outreach_data['follow_up_message']}"
+                )
+                st.markdown(response_text, unsafe_allow_html=True)
             except Exception as exc:
                 st.error(f"Creator outreach error: {exc}")
     render_footer()
