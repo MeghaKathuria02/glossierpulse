@@ -24,6 +24,14 @@ def build_persona_prompt(segment_name: str, segment_stats: dict) -> str:
     """
     Build a clear prompt for generating campaign personas in Glossier tone.
     """
+    extra_instruction = ""
+    if segment_name == "Premium Skin Investors":
+        extra_instruction = (
+            "\nIMPORTANT: Do not use numbered lists or bullet points. "
+            "\nUse the same headings as other segments: Persona name, Persona profile, Core skincare motivation, Main pain point, Best campaign message in Glossier voice, One social post caption idea."
+            "\nBold each heading in markdown exactly like **Persona name:** then the paragraph underneath on the following lines."
+            "\nKeep those headings exactly, and write the content under each heading in clean paragraphs only. No 1. 2. 3. formatting."
+        )
     return f"""
 You are a beauty marketing strategist for Glossier.
 
@@ -48,6 +56,7 @@ Create:
 4) Main pain point
 5) Best campaign message in Glossier voice (2-3 lines)
 6) One social post caption idea
+{extra_instruction}
 """
 
 
